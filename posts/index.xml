@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>valis</title>
-    <link>http://val-is.github.io/</link>
-    <description>Recent content on valis</description>
+    <title>Posts on valis</title>
+    <link>http://val-is.github.io/posts/</link>
+    <description>Recent content in Posts on valis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 03 Feb 2021 22:20:28 -0500</lastBuildDate><atom:link href="http://val-is.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 Feb 2021 22:20:28 -0500</lastBuildDate><atom:link href="http://val-is.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Advent of Code: 2020 Retrospect</title>
       <link>http://val-is.github.io/posts/aoc2020/</link>
@@ -14,16 +14,6 @@
       
       <guid>http://val-is.github.io/posts/aoc2020/</guid>
       <description>Advent of Code is an annual programming event that spans &amp;ndash; you guessed it &amp;ndash; the month of December. Challenges are released at midnight for the first 25 days, and programmers race to develop working solutions to solve each problem. Also, there&amp;rsquo;s usually a fun theme to go along with the challenges, this year being built around taking a vacation (during covid, somehow?! someone needs to put the North Pole under lockdown).</description>
-    </item>
-    
-    <item>
-      <title>About</title>
-      <link>http://val-is.github.io/about/</link>
-      <pubDate>Sun, 01 Nov 2020 11:11:11 -0500</pubDate>
-      
-      <guid>http://val-is.github.io/about/</guid>
-      <description>👋 Hello! I&amp;rsquo;m valis, a student learning computer science while dabbling in electrical/mechanical engineering projects. This site exists so that I can share some of my interests and completed work. You can (maybe) expect to see posts on
- 3d printing Hardware fun Cycling Automation Keyboards Languages  For the time being, I&amp;rsquo;m building this site using Hugo with smol.</description>
     </item>
     
   </channel>

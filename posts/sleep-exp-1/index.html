@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Sleep Experiments: Data Collection</title>
+	
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+	
+</head>
+<body>
+	<header>
+	===========<br>
+	== <a href="http://val-is.github.io/">valis</a> ==<br>
+	===========
+	<div style="float: right;">Building and breaking things.</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/posts/"><b>Posts</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+			<a href="/about/"><b>About</b></a>.
+			
+	</nav>
+	</p>
+	
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Sleep Experiments: Data Collection</h1>
+			<b><time>14.11.2020 00:00</time></b>
+		       
+
+			<div>
+				<p>I&rsquo;ve had a bit of a fascination with sleep for a while &ndash; now by no means do I know <em>anything</em> about it from a biological standpoint or anything like that, I figured that I&rsquo;d be able to learn a bit more about how I sleep through statistics and data analysis. I mean, if I&rsquo;m going to be spending eight out of every 24 hours doing something (a third of my life?!), I might as well learn a bit more about how to get the most out of it, no?</p>
+<p>Over the past week or so, I&rsquo;ve started to set out towards learning more about how I sleep through what&rsquo;s <em>obviously</em> the best way possible: a Discord bot (<a href="https://github.com/val-is/doremy">which you can find here!</a>). But of course, what on earth does &ldquo;learning more about how I sleep&rdquo; actually mean? This bot will hopefully end up being the tool that I can use to answer that question in the first place &ndash; after all, the first step of any good study is getting background information.</p>
+<figure class="right">
+    <img src="doremy-demo.png"
+         alt="bot demo"/> 
+</figure>
+
+<p>Now, I&rsquo;m sure that there are plenty of great sleep tracking apps out there (personally, I&rsquo;ve gotten used to using my Pebble watch&rsquo;s integrated tracking functionality), but I wanted to get a platform set up to allow for more of a subjective approach to data collection. With that in mind, the key thing that my bot should do is pretty clear &ndash; I need to be able to deploy surveys that my tired reptile brain can answer.</p>
+<p>To render interactable surveys, I decided to use reactions, as IMO they&rsquo;re one of the most overpowered ways of polling people in Discord. It&rsquo;s easy enough for me (that&rsquo;s been up for a total of 30s) to understand what&rsquo;s going on, and it&rsquo;s easy to get user input without making anything too convoluted.</p>
+<p>The bot itself operates as a simple per-channel (in this case, DM channel) state machine. First, we wait for the user to tell the bot to start a sleeping period with <code>drm sleep</code>, then wait some amount of time to post the poll before the user wakes up, and then we wait for the user to respond to the poll (recording the response as the reaction comes in).</p>
+<p>I&rsquo;m currently running this bot on an older Raspberry Pi that&rsquo;s more or less become the home of quite a few bots (both my own and other peoples'!). I&rsquo;m running everything using a few systemd services, which lets me in turn control them quite easily through the native service support. Most of the bots don&rsquo;t need to worry about portability/running across multiple systems, so I haven&rsquo;t thought about containerizing them, but I could see that being in the future of this one&hellip;</p>
+<figure class="left">
+    <img src="sleep-qual-1.png"
+         alt="bot demo"/> 
+</figure>
+
+<p>I figured that the easiest way to store data would be be just dumping it into a JSON file periodically. Now, JSON is supposed to be somewhat human-readable, but let&rsquo;s just say that I was somehow able to make one of the most scuffed things imaginable (check out <code>src/util/db.go</code> for some cursed code 🙃). In the future, I&rsquo;ll definitely want to either switch it over to use a proper database or CSV, especially when I start interfacing it with the data analysis side of things.</p>
+<p>Now of course, the fun part of this project is yet to come&hellip; for now, it&rsquo;s just an observational study looking at the duration of my sleep and how good I feel in the morning. Eventually I&rsquo;ll start getting more data, which in turn will let me start asking more questions, in turn shaping the course of this set of mini experiments.</p>
+
+			</div>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/posts/sleep-exp-1/">Sleep Experiments: Data Collection</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="http://val-is.github.io/"><b>valis</b></a>.
+	<a href="https://github.com/val-is"><b>Github</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Advent of Code: 2020 Retrospect</title>
+	
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+	
+</head>
+<body>
+	<header>
+	===========<br>
+	== <a href="http://val-is.github.io/">valis</a> ==<br>
+	===========
+	<div style="float: right;">Building and breaking things.</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/posts/"><b>Posts</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+			<a href="/about/"><b>About</b></a>.
+			
+	</nav>
+	</p>
+	
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Advent of Code: 2020 Retrospect</h1>
+			<b><time>03.02.2021 22:20</time></b>
+		       
+
+			<div>
+				<p><a href="https://adventofcode.com"><em>Advent of Code</em></a> is an annual programming event that spans &ndash; you guessed it &ndash; the month of December. Challenges are released at midnight for the first 25 days, and programmers race to develop working solutions to solve each problem. Also, there&rsquo;s usually a fun theme to go along with the challenges, this year being built around taking a vacation (during covid, somehow?! someone needs to put the North Pole under lockdown).</p>
+<p>This was my second year participating in the challenge, and although I don&rsquo;t think I <em>feel</em> like I learned as much as last year, I certainly have quite a bit to share. So, this post is where I&rsquo;m setting out to do that! I&rsquo;ll update it as I write more, but I plan to eventually cover how I approached each problem and if there was a better way to do it (likely, yes 🙃).</p>
+<p>To highlight a few of the more interesting days:</p>
+<ul>
+<li><a href="">Day X: XXXXXXX</a></li>
+</ul>
+<h3 id="day-1-report-repair">Day 1: Report Repair</h3>
+<p>Expectedly, the challenges start off simple &ndash; today&rsquo;s problem is a simple question of finding a subset of numbers with a given length out of a given set that sum to 2020. <a href="https://github.com/val-is/advent-of-code/blob/main/2020/day01.py">My initial approach</a> was simply to throw a few nested for loops at it. This <em>works</em> of course, but I wouldn&rsquo;t consider it to be very elegant.</p>
+<p>A slightly more elegant solution (feels more elegant.) would be to abuse <code>itertools</code> to take the <a href="https://en.wikipedia.org/wiki/Cartesian_product">cartesian product</a> of our inputs &ndash; a nifty way to get the valid subsets (granted, there&rsquo;s only one ;) ) for this might be:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">solutions <span style="color:#f92672">=</span> [ss <span style="color:#66d9ef">for</span> ss <span style="color:#f92672">in</span> map(set, itertools<span style="color:#f92672">.</span>product(inputs, repeat<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>))
+                <span style="color:#66d9ef">if</span> len(ss) <span style="color:#f92672">==</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">and</span> sum(ss) <span style="color:#f92672">==</span> <span style="color:#ae81ff">2020</span>]
+
+<span style="color:#66d9ef">print</span>(np<span style="color:#f92672">.</span>prod([<span style="color:#f92672">*</span>solutions[<span style="color:#ae81ff">0</span>]))
+</code></pre></div><p>Outside of itertools, the only tricky thing being done here is taking advantage of the fact that the <code>set</code> type consists of unique values to get rid of duplicates (that&rsquo;s the <code>len</code> check).</p>
+
+			</div>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/posts/aoc2020/">Advent of Code: 2020 Retrospect</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2021 <a href="http://val-is.github.io/"><b>valis</b></a>.
+	<a href="https://github.com/val-is"><b>Github</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>
