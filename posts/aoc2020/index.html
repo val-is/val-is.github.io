@@ -43,10 +43,12 @@
 
 			<div>
 				<p><a href="https://adventofcode.com"><em>Advent of Code</em></a> is an annual programming event that spans &ndash; you guessed it &ndash; the month of December. Challenges are released at midnight for the first 25 days, and programmers race to develop working solutions to solve each problem. Also, there&rsquo;s usually a fun theme to go along with the challenges, this year being built around taking a vacation (during covid, somehow?! someone needs to put the North Pole under lockdown).</p>
-<p>This was my second year participating in the challenge, and although I don&rsquo;t think I <em>feel</em> like I learned as much as last year, I certainly have quite a bit to share. So, this post is where I&rsquo;m setting out to do that! I&rsquo;ll update it as I write more, but I plan to eventually cover how I approached each problem and if there was a better way to do it (likely, yes 🙃).</p>
-<p>To highlight a few of the more interesting days:</p>
+<p>This was my second year participating in the challenge, and although I don&rsquo;t think I <em>feel</em> like I learned as much as last year, I certainly have quite a bit to share. So, this post is where I&rsquo;m setting out to do that! I&rsquo;ll update it as I write more, but I plan to eventually cover how I approached some of problems, especially if there was an interesting or really solid way of solving them.</p>
 <ul>
-<li><a href="">Day X: XXXXXXX</a></li>
+<li><a href="">Day 1: Report Repair</a></li>
+<li><a href="">Day 2: Password Philosophy (delete?)</a></li>
+<li><a href="">Day 4: Passport Processing</a></li>
+<li><a href="">Day 5: Binary Boarding</a></li>
 </ul>
 <h3 id="day-1-report-repair">Day 1: Report Repair</h3>
 <p>Expectedly, the challenges start off simple &ndash; today&rsquo;s problem is a simple question of finding a subset of numbers with a given length out of a given set that sum to 2020. <a href="https://github.com/val-is/advent-of-code/blob/main/2020/day01.py">My initial approach</a> was simply to throw a few nested for loops at it. This <em>works</em> of course, but I wouldn&rsquo;t consider it to be very elegant.</p>
@@ -56,6 +58,27 @@
 
 <span style="color:#66d9ef">print</span>(np<span style="color:#f92672">.</span>prod([<span style="color:#f92672">*</span>solutions[<span style="color:#ae81ff">0</span>]))
 </code></pre></div><p>Outside of itertools, the only tricky thing being done here is taking advantage of the fact that the <code>set</code> type consists of unique values to get rid of duplicates (that&rsquo;s the <code>len</code> check).</p>
+<h3 id="day-2-password-philosophy-delete">Day 2: Password Philosophy (delete?)</h3>
+<p>The second day is also not that bad, and can be solved in a pretty staightforwards way. You&rsquo;re given a list of password policies and passwords, and the goal is to find and count the number of valid passwords in an input file. In all honesty, this is probably one of the most Advent of Codey problems that there is &ndash; it&rsquo;s all about parsing and validation.</p>
+<p><a href="https://github.com/val-is/advent-of-code/blob/main/2020/day02.py">My solution to this problem</a> wasn&rsquo;t terribly complicated or anything: on each line, we just quickly parsing in the input, splitting out the password rule, and evaluating it. I can&rsquo;t think of a more effective way of doing this to be honest, but if I were to rewrite it, I&rsquo;d like to make use of a regex &ndash; this way, we can condense a lot of the logic into one line while making it more readable (as a <em>simple</em> regex) at the same time.</p>
+<h3 id="day-4-passport-processing">Day 4: Passport Processing</h3>
+<p><em>Passport Processing</em> was an&hellip; interesting problem, though I found it to be a bit tedious to implement. The gist of it is that you&rsquo;re given a set of rules (problem descritpion) that passports (test input) have to follow. The parsing for this problem isn&rsquo;t the <em>easiest</em> by any means, but really that&rsquo;s all that the problem <em>is</em>.</p>
+<p>Fortunately, this was a great problem to show off some non-obvious ways to implement repetitive/hard to read code in Python! One of the tricks in <a href="https://github.com/val-is/advent-of-code/blob/main/2020/day04.py">my solution</a> was to use a dictionary as a lookup table for checks:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># abridged implementation of field validation</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">check_fields</span>():
+    <span style="color:#66d9ef">for</span> field <span style="color:#f92672">in</span> passport:
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> {
+            <span style="color:#e6db74">&#34;byr&#34;</span>: <span style="color:#66d9ef">lambda</span> x: <span style="color:#ae81ff">1920</span> <span style="color:#f92672">&lt;=</span> int(x) <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">2002</span>,
+            <span style="color:#e6db74">&#34;iyr&#34;</span>: <span style="color:#66d9ef">lambda</span> x: <span style="color:#ae81ff">2010</span> <span style="color:#f92672">&lt;=</span> int(x) <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">2020</span>,
+            <span style="color:#e6db74">&#34;hcl&#34;</span>: <span style="color:#66d9ef">lambda</span> x: re<span style="color:#f92672">.</span>match(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#34;^#[0-9a-f]{6}$&#34;</span>, x) <span style="color:#f92672">!=</span> None,
+            <span style="color:#75715e"># ...</span>
+        }<span style="color:#f92672">.</span>get(field, <span style="color:#66d9ef">lambda</span> x: True)(port[field]):
+            <span style="color:#75715e"># invalidate passport</span>
+            <span style="color:#66d9ef">return</span> False
+    <span style="color:#66d9ef">return</span> True
+</code></pre></div><p>This method doesn&rsquo;t really hold <em>that</em> many advantages over just writing out a bunch of if statements, in terms of performance, however. I&rsquo;d expect that if anything, it&rsquo;s probably slightly less performant&hellip; but fortunately, it would only be by a constant amount at worst. To better optimize this, I&rsquo;d just declare the dict outside of the scope of the function to be absolutely certain that it doesn&rsquo;t get redeclared on each call.</p>
+<h3 id="day-5-binary-boarding">Day 5: Binary Boarding</h3>
+<p>Out of all the problems in the first week, <em>Binary Boarding</em> was probably the best written one (IMO). The straightforward solution of filling out a tree is right there, but just under the surface is the much more interesting method of doing some bit level scheananigans.</p>
 
 			</div>
 		</article>
