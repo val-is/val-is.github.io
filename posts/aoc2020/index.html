@@ -78,8 +78,22 @@
     <span style="color:#66d9ef">return</span> True
 </code></pre></div><p>This method doesn&rsquo;t really hold <em>that</em> many advantages over just writing out a bunch of if statements, in terms of performance, however. I&rsquo;d expect that if anything, it&rsquo;s probably slightly less performant&hellip; but fortunately, it would only be by a constant amount at worst. To better optimize this, I&rsquo;d just declare the dict outside of the scope of the function to be absolutely certain that it doesn&rsquo;t get redeclared on each call.</p>
 <h3 id="day-5-binary-boarding">Day 5: Binary Boarding</h3>
-<p>Out of all the problems in the first week, <em>Binary Boarding</em> was probably the best written one (IMO). The straightforward solution of filling out a tree is right there, but just under the surface is the much more interesting method of doing some bit level scheananigans.</p>
-
+<p>Out of all the problems in the first week, <em>Binary Boarding</em> was probably the best written one (IMO). The straightforward solution of filling out a tree is right there, but just under the surface is the much more interesting method of doing some bit level scheananigans.
+The bit string based solution is really quite simple &ndash; knowing that each choice being made between different seating patterns (ex: F/B or R/L) will split the number of potential seats in half, and that the entire string we&rsquo;re given maps to one specific seat <em>probably</em> gives the trick away.
+Basically, what we need to do is recognize that each input string given to us is actually a binary encoded seating position, and from there, the rest of the problem falls into place.</p>
+<p>Here&rsquo;s a quick representation of what one of the seats might look like after we load it in:</p>
+<pre><code>BFFFBBF RRR
+1000110 111 =&gt; 567
+</code></pre><p>From here, the first part is <em>incredibly</em> simple, all we have to do is load all of our seats in as decimal values, and then just find the highest seat value that we have.
+The second part of the problem is basically just about finding a gap in the seats &ndash; the only real catch here is making sure that your code is aware that there might be seats at the front or back of the plane missing.
+My approach to this wasn&rsquo;t too bad; all I ended up doing was sorting the set of seat IDs to make finding the gap easier, starting at the lowest known value, and then working backwards to find a gap.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">ticket_ids <span style="color:#f92672">=</span> sorted([id(line) <span style="color:#66d9ef">for</span> line <span style="color:#f92672">in</span> inputs])
+<span style="color:#66d9ef">for</span> idx, _ <span style="color:#f92672">in</span> enumerate(ticket_ids[:<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]):
+    <span style="color:#66d9ef">if</span> ticket_ids[idx<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">-</span> ticket_ids[idx] <span style="color:#f92672">==</span> <span style="color:#ae81ff">2</span>:    <span style="color:#75715e"># i.e., there&#39;s a gap</span>
+        part_2 <span style="color:#f92672">=</span> ticket_ids[idx] <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
+        <span style="color:#66d9ef">break</span>
+<span style="color:#66d9ef">print</span>(part_2)
+</code></pre></div>
 			</div>
 		</article>
 	</main>
@@ -92,6 +106,10 @@
 			<ul>
 				
 				<li><a href="/posts/aoc2020/">Advent of Code: 2020 Retrospect</a></li>
+				
+				<li><a href="/posts/japanese-2020/">Studying Japanese: 2020 status check</a></li>
+				
+				<li><a href="/posts/sleep-exp-1/">Sleep Experiments: Data Collection</a></li>
 				
 			</ul>
 		</div>
