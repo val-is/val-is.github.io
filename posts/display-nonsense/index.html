@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Display Nonsense: Multiple monitors w/ lightdm and xrandr</title>
+	
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+	
+</head>
+<body>
+	<header>
+	===========<br>
+	== <a href="http://val-is.github.io/">valis</a> ==<br>
+	===========
+	<div style="float: right;">Building and breaking things.</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/posts/"><b>Posts</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+			<a href="/about/"><b>About</b></a>.
+			
+	</nav>
+	</p>
+	
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Display Nonsense: Multiple monitors w/ lightdm and xrandr</h1>
+			<b><time>15.05.2021 22:40</time></b>
+		       
+
+			<div>
+				<p>Handling monitor configuration in a barebones Linux install has always been kind
+of a pain in my experience, and this was further amplified with the additional
+requirement of <em>dynamically</em> configuring monitors for my laptop.</p>
+<p>So, here&rsquo;s the crux of the problem: I want to map a bunch of monitor port/software
+states to one of two physical states. This can be expressed algorithmically: if
+I don&rsquo;t have any external monitors plugged into my laptop, use the internal screen,
+otherwise arrange the monitors from right to left in descending size. The challenge
+comes in because tools like <code>xrandr</code> don&rsquo;t give a unique ID for each <em>monitor</em>, but
+rather each port&hellip; so it&rsquo;s time to write a script!</p>
+<p>As with all problems, this was solvable with a nifty little Python script &ndash; which
+you can check out <a href="https://gist.github.com/val-is/ff12b058ad0034296e868a84f734767f">here</a>,
+but it&rsquo;s a tad messy so I&rsquo;ll dive into the relevant bits below.</p>
+<p>The first challenge is talking with <code>xrandr</code> to get the current configuration
+of monitors. To do this, it&rsquo;s easiest to snag the output from <code>xrandr --listactivemonitors</code>
+and parse it into a program usable struct.</p>
+<pre><code>Monitors: 2
+ 0: +*DP-2 2560/597x1440/336+1920+0  DP-2
+ 1: +DP-1 1920/521x1080/293+0+0  DP-1
+
+==&gt;
+
+[
+    [&quot;DP-1&quot;, [1920, 1080]],
+    [&quot;DP-2&quot;, [2560, 1440]]
+]
+</code></pre><p>This transformation could be really easily done with a regex, but I found it easier
+to just use simple parsing logic. The key thing here is to drop the internal monitor
+(<code>eDP-1</code>), which is the edge case where we don&rsquo;t want to do any manipulation of the
+(un)connected monitors.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># get lines of output containing info</span>
+screens <span style="color:#f92672">=</span> [l <span style="color:#66d9ef">for</span> l <span style="color:#f92672">in</span> subprocess<span style="color:#f92672">.</span>check_output([<span style="color:#e6db74">&#34;xrandr&#34;</span>, <span style="color:#e6db74">&#34;--listactivemonitors&#34;</span>])<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#34;utf-8&#34;</span>)<span style="color:#f92672">.</span>splitlines()][<span style="color:#ae81ff">1</span>:]
+<span style="color:#75715e"># reprocess into useful stuff</span>
+<span style="color:#66d9ef">for</span> idx, screen <span style="color:#f92672">in</span> enumerate(screens):
+    d <span style="color:#f92672">=</span> screen<span style="color:#f92672">.</span>split()
+    <span style="color:#75715e"># drop special characters that indicate special params</span>
+    name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">.</span>join([c <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> data[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>] <span style="color:#66d9ef">if</span> c <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> <span style="color:#e6db74">&#34;+*&#34;</span>]) 
+    res <span style="color:#f92672">=</span> [int(i<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;/&#39;</span>)[<span style="color:#ae81ff">0</span>]) <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> data[<span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>]<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;x&#39;</span>)]
+    <span style="color:#66d9ef">if</span> name <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;eDP-1&#34;</span>:
+        <span style="color:#66d9ef">continue</span>
+    screens[idx] <span style="color:#f92672">=</span> [name, res]
+</code></pre></div><p>With this array in hand, we can now sort it to get the monitors arranged by
+size and create our final xrandr command!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># largest screen at index 0, in my setup this is on the right</span>
+screens <span style="color:#f92672">=</span> sorted(screens, key<span style="color:#f92672">=</span><span style="color:#66d9ef">lambda</span> x: x[<span style="color:#ae81ff">1</span>][<span style="color:#ae81ff">0</span>])[::<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
+
+<span style="color:#75715e"># only generate the command if more than one monitor is present</span>
+<span style="color:#75715e"># i.e. at least one is plugged in</span>
+<span style="color:#66d9ef">if</span> len(screens) <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">1</span>:
+    <span style="color:#66d9ef">return</span>
+
+<span style="color:#75715e"># arrange in order</span>
+<span style="color:#75715e"># we assume xrandr is using best res, but can specify --auto if wanted</span>
+command <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;xrandr --output eDP-1 --off&#34;</span>
+<span style="color:#66d9ef">for</span> idx <span style="color:#f92672">in</span> range(len(screens)<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>):
+    command <span style="color:#f92672">+=</span> f<span style="color:#e6db74">&#34;--output {screens[idx][0] --right-of {screens[idx+1][0]}&#34;</span>
+os<span style="color:#f92672">.</span>system(command)
+
+<span style="color:#75715e"># set primary screen</span>
+os<span style="color:#f92672">.</span>system(f<span style="color:#e6db74">&#34;xrandr --output {screens[0][0]} --primary&#34;</span>)
+</code></pre></div><p>And yup, that&rsquo;s basically it! It really just amounts to something a bit overkill
+that solves a trivial problem, but hey, that&rsquo;s the nature of what I do.</p>
+<h2 id="making-the-things-run">Making the things run</h2>
+<p>The trickiest bit about setting this up is probably in sifting through the docs
+to find out where to plug the script in, but it turns out that LightDM (a display
+manager that I happen to use) has a spot to slide in a script that runs on
+initialization.</p>
+<pre><code>display-setup-script=python /home/valis/resources/scripts/monitor-placer.py --lightdm
+</code></pre><p><code>display-setup-script</code> will be run as soon as the manager is initialized, but
+importantly before the greeter is activated. This lets the monitors get placed/set
+to be active so that the greeter (login screen) is on the right display!</p>
+<h2 id="extra-credit-polybar">Extra credit: Polybar</h2>
+<p>There&rsquo;s still one problem that&rsquo;s been messing with me &ndash; how to get Polybar to
+dynamically look nice across different monitors with different resolutions. It&rsquo;s
+easy to make it spawn with constant params on a per-<em>port</em> basis by just making
+a unique bar for each port, but with this new dynamic monitor setup, that won&rsquo;t work.</p>
+<p>This is where Polybar&rsquo;s ability to read environment variables becomes very
+helpful: I can basically just precompute the size and offset in my script, and
+then pass it to the command firing off the bar on the fly. As an example:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># in the script, calculate the with and offset for the bar for each monitor</span>
+<span style="color:#66d9ef">for</span> screen <span style="color:#f92672">in</span> screens:
+    id <span style="color:#f92672">=</span> screen[<span style="color:#ae81ff">0</span>]
+    width <span style="color:#f92672">=</span> screen[<span style="color:#ae81ff">0</span>][<span style="color:#ae81ff">1</span>]
+    
+    <span style="color:#75715e"># centre the bar with a % based size</span>
+    bar_width <span style="color:#f92672">=</span> int(width <span style="color:#f92672">*</span> BAR_SIZE)
+    bar_offset <span style="color:#f92672">=</span> (width <span style="color:#f92672">-</span> bar_width) <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>
+    
+    os<span style="color:#f92672">.</span>system(f<span style="color:#e6db74">&#34;MONTIOR={id} BAR_W={bar_width} BAR_OFF={bar_offset} polybar --reload main &amp;&#34;</span>)
+</code></pre></div><p>Then, in my Polybar config:</p>
+<pre><code>...
+[bar/main]
+monitor = ${env:MONITOR:}
+...
+width = ${env:BAR_W}
+offset-x = ${env:BAR_OFF}
+...
+</code></pre><p>And voilà, the bar is now launched and centred by our script.</p>
+<p>It&rsquo;s also worth noting that LightDM can&rsquo;t launch Polybar (duh), so there are really
+two scripts (well, one with a command line flag) that split up the processing
+between things that LightDM does (placing/enabling the monitors) and the things that
+(in my case) i3 does (launching Polybar). This was really easy to do by adding a flag
+with <code>argparse</code>, and skipping any Polybar logic if it was triggered:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">parser <span style="color:#f92672">=</span> argparse<span style="color:#f92672">.</span>ArgumentParser()
+parser<span style="color:#f92672">.</span>add_argument(<span style="color:#e6db74">&#34;--lightdm&#34;</span>, dest<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;mode&#34;</span>, action<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;store_const&#34;</span>,
+        const<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;monitor-only&#34;</span>, default<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;all&#34;</span>)
+args <span style="color:#f92672">=</span> parser<span style="color:#f92672">.</span>parse_args()
+
+screens <span style="color:#f92672">=</span> get_screens()
+place_screens(screens)
+
+<span style="color:#66d9ef">if</span> args<span style="color:#f92672">.</span>mode <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;monitor-only&#34;</span>:
+    <span style="color:#66d9ef">return</span>
+
+launch_polybar(screens)
+</code></pre></div>
+			</div>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/posts/display-nonsense/">Display Nonsense: Multiple monitors w/ lightdm and xrandr</a></li>
+				
+				<li><a href="/posts/aoc2020/">Advent of Code: 2020 Retrospect</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2021 <a href="http://val-is.github.io/"><b>valis</b></a>.
+	<a href="https://github.com/val-is"><b>Github</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

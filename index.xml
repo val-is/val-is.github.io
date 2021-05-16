@@ -6,7 +6,17 @@
     <description>Recent content on valis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 03 Feb 2021 22:20:28 -0500</lastBuildDate><atom:link href="http://val-is.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 15 May 2021 22:40:25 -0400</lastBuildDate><atom:link href="http://val-is.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Display Nonsense: Multiple monitors w/ lightdm and xrandr</title>
+      <link>http://val-is.github.io/posts/display-nonsense/</link>
+      <pubDate>Sat, 15 May 2021 22:40:25 -0400</pubDate>
+      
+      <guid>http://val-is.github.io/posts/display-nonsense/</guid>
+      <description>Handling monitor configuration in a barebones Linux install has always been kind of a pain in my experience, and this was further amplified with the additional requirement of dynamically configuring monitors for my laptop.
+So, here&amp;rsquo;s the crux of the problem: I want to map a bunch of monitor port/software states to one of two physical states. This can be expressed algorithmically: if I don&amp;rsquo;t have any external monitors plugged into my laptop, use the internal screen, otherwise arrange the monitors from right to left in descending size.</description>
+    </item>
+    
     <item>
       <title>Advent of Code: 2020 Retrospect</title>
       <link>http://val-is.github.io/posts/aoc2020/</link>
